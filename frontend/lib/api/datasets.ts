@@ -22,6 +22,6 @@ export const datasetsApi = {
   },
   
   delete: async (id: number): Promise<void> => {
-    await apiClient.delete(/datasets/);
+    await apiClient.delete(`/datasets/${id}`);
   },
 };
