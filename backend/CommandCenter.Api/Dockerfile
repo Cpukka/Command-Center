@@ -2,8 +2,9 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
-# Copy csproj and restore
+# Copy csproj and NuGet config, then restore
 COPY CommandCenter.Api.csproj .
+COPY NuGet.Config .
 RUN dotnet restore
 
 # Copy everything else (including the correct Program.cs)
