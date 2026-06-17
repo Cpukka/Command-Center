@@ -14,6 +14,7 @@ interface TrendDataPoint {
   name: string;
   datasets: number;
   predictions: number;
+  [key: string]: string | number | undefined;
 }
 
 interface ModelPerformancePoint {
@@ -21,6 +22,7 @@ interface ModelPerformancePoint {
   accuracy: number;
   precision: number;
   recall: number;
+  [key: string]: string | number | undefined;
 }
 
 interface Activity {
