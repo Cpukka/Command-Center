@@ -130,3 +130,4 @@ C:\Users\Chima\Desktop\command-center\backend\CommandCenter.Api\obj\Debug\net10.
 C:\Users\Chima\Desktop\command-center\backend\CommandCenter.Api\obj\Debug\net10.0\CommandCenter.Api.pdb
 C:\Users\Chima\Desktop\command-center\backend\CommandCenter.Api\obj\Debug\net10.0\CommandCenter.Api.genruntimeconfig.cache
 C:\Users\Chima\Desktop\command-center\backend\CommandCenter.Api\obj\Debug\net10.0\ref\CommandCenter.Api.dll
+C:\Users\Chima\Desktop\command-center\backend\CommandCenter.Api\obj\Debug\net10.0\CommandCenter.Api.sourcelink.json
