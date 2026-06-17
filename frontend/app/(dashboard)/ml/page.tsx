@@ -203,7 +203,7 @@ export default function MLModelsPage() {
   };
 
   const getModelType = (model: MLModel): string => {
-    return model.model_type || model.modelType || 'regression';
+    return model.model_type || 'regression';
   };
 
   const getModelAccuracy = (model: MLModel): number => {
