@@ -2,6 +2,10 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
+ENV DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1 \
+    DOTNET_NOLOGO=1 \
+    NUGET_FALLBACK_PACKAGES=""
+
 # Copy csproj and restore
 COPY CommandCenter.Api.csproj .
 RUN dotnet restore
