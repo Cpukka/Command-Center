@@ -13,8 +13,7 @@ import {
 
 interface DataPoint {
   name: string;
-  value: number;
-  predicted?: number;
+  [key: string]: string | number | undefined;
 }
 
 interface SimpleLineChartProps {
