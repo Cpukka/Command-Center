@@ -9,6 +9,27 @@ import SimpleBarChart from '@/components/charts/SimpleBarChart';
 import ActivityFeed from '@/components/dashboard/ActivityFeed';
 import toast from 'react-hot-toast';
 
+// Define proper types
+interface TrendDataPoint {
+  name: string;
+  datasets: number;
+  predictions: number;
+}
+
+interface ModelPerformancePoint {
+  name: string;
+  accuracy: number;
+  precision: number;
+  recall: number;
+}
+
+interface Activity {
+  id: number;
+  type: 'dataset' | 'model' | 'prediction' | 'report';
+  message: string;
+  timestamp: Date;
+}
+
 export default function EnhancedDashboardPage() {
   const router = useRouter();
   const [metrics, setMetrics] = useState({
@@ -17,9 +38,9 @@ export default function EnhancedDashboardPage() {
     predictions: 0,
     accuracy: 0
   });
-  const [trendData, setTrendData] = useState([]);
-  const [modelPerformance, setModelPerformance] = useState([]);
-  const [activities, setActivities] = useState([]);
+  const [trendData, setTrendData] = useState<TrendDataPoint[]>([]);
+  const [modelPerformance, setModelPerformance] = useState<ModelPerformancePoint[]>([]);
+  const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
