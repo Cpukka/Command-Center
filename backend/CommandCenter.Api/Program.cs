@@ -16,28 +16,21 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient<AIServiceClient>();
 
 // ============================================
-// DATABASE CONNECTION STRING - FIXED
+// DATABASE CONNECTION STRING - MANUAL FORMAT
 // ============================================
-// Try multiple sources for connection string
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+// Use the manual format that Npgsql definitely supports
+var connectionString = "Host=postgres.railway.internal;Database=railway;Username=postgres;Password=PEYnUMlHNxqChrkxTaOPaSuPrDdanDFT";
 
-// If not found in appsettings, try environment variable
+// Verify the connection string is valid
 if (string.IsNullOrEmpty(connectionString))
 {
-    connectionString = Environment.GetEnvironmentVariable("DATABASE_URL");
-}
-
-// If still empty, log error and exit
-if (string.IsNullOrEmpty(connectionString))
-{
-    Console.WriteLine("❌ ERROR: Database connection string is missing!");
-    Console.WriteLine("Please set DATABASE_URL or ConnectionStrings__DefaultConnection in Railway variables.");
+    Console.WriteLine("❌ ERROR: Database connection string is empty!");
     throw new Exception("Database connection string is required");
 }
 
-Console.WriteLine($"✅ Database connection string found! (starts with: {connectionString.Substring(0, Math.Min(30, connectionString.Length))}...)");
+Console.WriteLine($"✅ Using database connection string: Host={connectionString.Split(';')[0].Replace("Host=", "")}...");
 
-// Add Database Context with the connection string
+// Add Database Context
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString));
 
@@ -54,24 +47,21 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidAudience = builder.Configuration["Jwt:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? "your-super-secret-key-32-chars-minimum"))
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? "CommandCenter_SuperSecret_JWT_2024_32char"))
         };
     });
 
 builder.Services.AddAuthorization();
 builder.Services.AddScoped<AuthService>();
 
-// CORS with specific origins
+// Configure CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigins", policy =>
     {
         policy.WithOrigins(
-            "https://renewed-growth-production-9650.up.railway.app",  // Frontend
-            "https://command-center-production-f0a9.up.railway.app",  // Backend
-            "https://carefree-hope-production-9085.up.railway.app",   // AI Service
-            "http://localhost:3000",
-            "http://localhost:5000"
+            "https://renewed-growth-production-9650.up.railway.app",
+            "http://localhost:3000"
         )
         .AllowAnyMethod()
         .AllowAnyHeader()
@@ -81,27 +71,19 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Swagger in development only
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-// HTTPS redirection (Railway handles SSL)
 app.UseHttpsRedirection();
-
-// CORS
 app.UseCors("AllowSpecificOrigins");
-
-// Authentication & Authorization
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Map controllers
 app.MapControllers();
 
-// Root endpoint
 app.MapGet("/", () => new { 
     message = "Command Center API is running!",
     timestamp = DateTime.UtcNow,
@@ -110,7 +92,6 @@ app.MapGet("/", () => new {
     environment = app.Environment.EnvironmentName
 });
 
-// Health check endpoint
 app.MapGet("/api/health", () => new { 
     status = "healthy", 
     timestamp = DateTime.UtcNow,
@@ -121,9 +102,18 @@ app.MapGet("/api/health", () => new {
 // Create database on startup
 using (var scope = app.Services.CreateScope())
 {
-    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    dbContext.Database.EnsureCreated();
-    Console.WriteLine("✅ Database ensured created!");
+    try
+    {
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        dbContext.Database.EnsureCreated();
+        Console.WriteLine("✅ Database ensured created!");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"❌ Database creation failed: {ex.Message}");
+        Console.WriteLine($"Inner exception: {ex.InnerException?.Message}");
+        throw;
+    }
 }
 
 app.Run();
