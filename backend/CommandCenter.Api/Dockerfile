@@ -1,4 +1,5 @@
-﻿FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+﻿# backend/CommandCenter.Api/Dockerfile
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
 COPY CommandCenter.Api.csproj .
@@ -15,8 +16,9 @@ ENV ASPNETCORE_ENVIRONMENT=Production
 
 COPY --from=build /app .
 
-RUN addgroup --system --gid 1001 appuser && \
-    adduser --system --uid 1001 appuser
-USER appuser
+# REMOVE THESE LINES (they cause the error)
+# RUN addgroup --system --gid 1001 appuser && \
+#     adduser --system --uid 1001 appuser
+# USER appuser
 
 ENTRYPOINT ["dotnet", "CommandCenter.Api.dll"]
