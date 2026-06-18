@@ -15,22 +15,32 @@ builder.Services.AddSwaggerGen();
 // Register AI Service HTTP client
 builder.Services.AddHttpClient<AIServiceClient>();
 
-// ============================================
-// DATABASE CONNECTION STRING - MANUAL FORMAT
-// ============================================
-// Use the manual format that Npgsql definitely supports
-var connectionString = "Host=postgres.railway.internal;Database=railway;Username=postgres;Password=PEYnUMlHNxqChrkxTaOPaSuPrDdanDFT";
+// Database connection string
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-// Verify the connection string is valid
 if (string.IsNullOrEmpty(connectionString))
 {
-    Console.WriteLine("❌ ERROR: Database connection string is empty!");
+    connectionString = Environment.GetEnvironmentVariable("DATABASE_URL");
+}
+
+if (!string.IsNullOrEmpty(connectionString))
+{
+    connectionString = connectionString.Trim()
+        .Replace("\n", "")
+        .Replace("\r", "")
+        .Replace("\t", "")
+        .Replace("\uFEFF", "");
+    connectionString = connectionString.Trim();
+}
+
+if (string.IsNullOrEmpty(connectionString))
+{
+    Console.WriteLine("❌ ERROR: Database connection string is missing!");
     throw new Exception("Database connection string is required");
 }
 
 Console.WriteLine($"✅ Using database connection string: Host={connectionString.Split(';')[0].Replace("Host=", "")}...");
 
-// Add Database Context
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString));
 
@@ -84,6 +94,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+// Root endpoint
 app.MapGet("/", () => new { 
     message = "Command Center API is running!",
     timestamp = DateTime.UtcNow,
@@ -92,28 +103,20 @@ app.MapGet("/", () => new {
     environment = app.Environment.EnvironmentName
 });
 
-app.MapGet("/api/health", () => new { 
-    status = "healthy", 
-    timestamp = DateTime.UtcNow,
-    service = "Command Center API",
-    database = "PostgreSQL Connected"
-});
+// REMOVE THIS DUPLICATE - HealthController already handles /api/health
+// app.MapGet("/api/health", () => new { 
+//     status = "healthy", 
+//     timestamp = DateTime.UtcNow,
+//     service = "Command Center API",
+//     database = "PostgreSQL Connected"
+// });
 
 // Create database on startup
 using (var scope = app.Services.CreateScope())
 {
-    try
-    {
-        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        dbContext.Database.EnsureCreated();
-        Console.WriteLine("✅ Database ensured created!");
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"❌ Database creation failed: {ex.Message}");
-        Console.WriteLine($"Inner exception: {ex.InnerException?.Message}");
-        throw;
-    }
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    dbContext.Database.EnsureCreated();
+    Console.WriteLine("✅ Database ensured created!");
 }
 
 app.Run();
