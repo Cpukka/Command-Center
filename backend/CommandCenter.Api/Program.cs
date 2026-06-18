@@ -15,11 +15,33 @@ builder.Services.AddSwaggerGen();
 // Register AI Service HTTP client
 builder.Services.AddHttpClient<AIServiceClient>();
 
-// Add Database Context
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+// ============================================
+// DATABASE CONNECTION STRING - FIXED
+// ============================================
+// Try multiple sources for connection string
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-// Add JWT Authentication
+// If not found in appsettings, try environment variable
+if (string.IsNullOrEmpty(connectionString))
+{
+    connectionString = Environment.GetEnvironmentVariable("DATABASE_URL");
+}
+
+// If still empty, log error and exit
+if (string.IsNullOrEmpty(connectionString))
+{
+    Console.WriteLine("❌ ERROR: Database connection string is missing!");
+    Console.WriteLine("Please set DATABASE_URL or ConnectionStrings__DefaultConnection in Railway variables.");
+    throw new Exception("Database connection string is required");
+}
+
+Console.WriteLine($"✅ Database connection string found! (starts with: {connectionString.Substring(0, Math.Min(30, connectionString.Length))}...)");
+
+// Add Database Context with the connection string
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseNpgsql(connectionString));
+
+// JWT Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -39,16 +61,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization();
 builder.Services.AddScoped<AuthService>();
 
-// Configure CORS with specific origins
+// CORS with specific origins
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigins", policy =>
     {
         policy.WithOrigins(
-            "https://command-center-production-d1b0.up.railway.app",  // Production Frontend
-            "https://command-center-production-1af8.up.railway.app",  // AI Service (if needed)
-            "http://localhost:3000",  // Local development
-            "http://localhost:5000"   // Local backend
+            "https://renewed-growth-production-9650.up.railway.app",  // Frontend
+            "https://command-center-production-f0a9.up.railway.app",  // Backend
+            "https://carefree-hope-production-9085.up.railway.app",   // AI Service
+            "http://localhost:3000",
+            "http://localhost:5000"
         )
         .AllowAnyMethod()
         .AllowAnyHeader()
@@ -58,20 +81,20 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Enable Swagger in development
+// Swagger in development only
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-// Use HTTPS redirection in production
+// HTTPS redirection (Railway handles SSL)
 app.UseHttpsRedirection();
 
-// Use CORS with the specific policy
+// CORS
 app.UseCors("AllowSpecificOrigins");
 
-// Add authentication and authorization
+// Authentication & Authorization
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -100,6 +123,7 @@ using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     dbContext.Database.EnsureCreated();
+    Console.WriteLine("✅ Database ensured created!");
 }
 
 app.Run();
