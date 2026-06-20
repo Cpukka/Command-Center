@@ -19,7 +19,7 @@ builder.Services.AddHttpClient<AIServiceClient>();
 // DATABASE CONNECTION STRING - MANUAL FORMAT
 // ============================================
 // Use the manual format that Npgsql definitely supports
-var connectionString = "Host=postgres.railway.internal;Database=railway;Username=postgres;Password=PEYnUMlHNxqChrkxTaOPaSuPrDdanDFT";
+var connectionString = "Host=ep-sparkling-feather-at996fiz-pooler.c-9.us-east-1.aws.neon.tech;Database=neondb;Username=neondb_owner;Password=npg_GYQHqpc3EvT9;SslMode=Require";
 
 // Verify the connection string is valid
 if (string.IsNullOrEmpty(connectionString))
