@@ -39,24 +39,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (username: string, password: string) => {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-      console.log('API URL:', apiUrl);
-      
-      // Ensure URL doesn't have trailing slash
-      const baseUrl = apiUrl?.replace(/\/$/, '') || '';
-      const url = `${baseUrl}/api/auth/login`;
-      console.log('Login URL:', url);
-      
-      const response = await fetch(url, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Error response:', errorText);
-        throw new Error(errorText || 'Login failed');
+        const error = await response.json();
+        throw new Error(error.error || 'Login failed');
       }
 
       const data = await response.json();
@@ -78,28 +69,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       toast.success(`Welcome back, ${data.username}!`);
       router.push('/dashboard');
     } catch (error: any) {
-      console.error('Login error:', error);
-      toast.error(error.message || 'Login failed');
+      toast.error(error.message);
       throw error;
     }
   };
 
   const register = async (data: any) => {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-      const baseUrl = apiUrl?.replace(/\/$/, '') || '';
-      const url = `${baseUrl}/api/auth/register`;
-      
-      const response = await fetch(url, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Error response:', errorText);
-        throw new Error(errorText || 'Registration failed');
+        const error = await response.json();
+        throw new Error(error.error || 'Registration failed');
       }
 
       toast.success('Registration successful! Please login.');
@@ -116,6 +101,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     toast.success('Logged out successfully');
+    // Redirect to homepage instead of login
     router.push('/');
   };
 

@@ -15,31 +15,17 @@ builder.Services.AddSwaggerGen();
 // Register AI Service HTTP client
 builder.Services.AddHttpClient<AIServiceClient>();
 
-// ============================================
-// DATABASE CONNECTION STRING - RAILWAY POSTGRESQL
-// ============================================
+// Database connection
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-
 if (string.IsNullOrEmpty(connectionString))
 {
     connectionString = Environment.GetEnvironmentVariable("DATABASE_URL");
 }
-
-// If still empty, use Railway PostgreSQL directly
 if (string.IsNullOrEmpty(connectionString))
 {
     connectionString = "Host=postgres.railway.internal;Database=railway;Username=postgres;Password=PEYnUMlHNxqChrkxTaOPaSuPrDdanDFT";
 }
 
-if (string.IsNullOrEmpty(connectionString))
-{
-    Console.WriteLine("❌ ERROR: Database connection string is missing!");
-    throw new Exception("Database connection string is required");
-}
-
-Console.WriteLine($"✅ Using database connection string...");
-
-// Add Database Context
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString));
 
@@ -63,31 +49,25 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization();
 builder.Services.AddScoped<AuthService>();
 
-// Configure CORS
+// CORS - Allow all for debugging
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowSpecificOrigins", policy =>
+    options.AddPolicy("AllowAll", policy =>
     {
-        policy.WithOrigins(
-            "https://renewed-growth-production-9650.up.railway.app",
-            "http://localhost:3000"
-        )
-        .AllowAnyMethod()
-        .AllowAnyHeader()
-        .AllowCredentials();
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
     });
 });
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+// Always enable Swagger for debugging
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
-app.UseCors("AllowSpecificOrigins");
+app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -102,6 +82,14 @@ app.MapGet("/", () => new {
     environment = app.Environment.EnvironmentName
 });
 
+// Health endpoint
+app.MapGet("/api/health", () => new { 
+    status = "healthy", 
+    timestamp = DateTime.UtcNow,
+    service = "Command Center API",
+    database = "PostgreSQL Connected"
+});
+
 // Create database on startup
 using (var scope = app.Services.CreateScope())
 {
@@ -114,7 +102,6 @@ using (var scope = app.Services.CreateScope())
     catch (Exception ex)
     {
         Console.WriteLine($"❌ Database creation failed: {ex.Message}");
-        Console.WriteLine($"Inner exception: {ex.InnerException?.Message}");
         throw;
     }
 }
