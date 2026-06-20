@@ -16,19 +16,28 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient<AIServiceClient>();
 
 // ============================================
-// DATABASE CONNECTION STRING - MANUAL FORMAT
+// DATABASE CONNECTION STRING - RAILWAY POSTGRESQL
 // ============================================
-// Use the manual format that Npgsql definitely supports
-var connectionString = "Host=ep-sparkling-feather-at996fiz-pooler.c-9.us-east-1.aws.neon.tech;Database=neondb;Username=neondb_owner;Password=npg_GYQHqpc3EvT9;SslMode=Require";
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-// Verify the connection string is valid
 if (string.IsNullOrEmpty(connectionString))
 {
-    Console.WriteLine("❌ ERROR: Database connection string is empty!");
+    connectionString = Environment.GetEnvironmentVariable("DATABASE_URL");
+}
+
+// If still empty, use Railway PostgreSQL directly
+if (string.IsNullOrEmpty(connectionString))
+{
+    connectionString = "Host=postgres.railway.internal;Database=railway;Username=postgres;Password=PEYnUMlHNxqChrkxTaOPaSuPrDdanDFT";
+}
+
+if (string.IsNullOrEmpty(connectionString))
+{
+    Console.WriteLine("❌ ERROR: Database connection string is missing!");
     throw new Exception("Database connection string is required");
 }
 
-Console.WriteLine($"✅ Using database connection string: Host={connectionString.Split(';')[0].Replace("Host=", "")}...");
+Console.WriteLine($"✅ Using database connection string...");
 
 // Add Database Context
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -92,10 +101,6 @@ app.MapGet("/", () => new {
     database = "PostgreSQL Connected",
     environment = app.Environment.EnvironmentName
 });
-
-// ❌ REMOVED: Duplicate /api/health endpoint
-// HealthController already handles /api/health
-// app.MapGet("/api/health", () => new { ... });
 
 // Create database on startup
 using (var scope = app.Services.CreateScope())
