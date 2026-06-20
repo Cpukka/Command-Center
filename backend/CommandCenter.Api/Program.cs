@@ -84,6 +84,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+// Root endpoint
 app.MapGet("/", () => new { 
     message = "Command Center API is running!",
     timestamp = DateTime.UtcNow,
@@ -92,12 +93,9 @@ app.MapGet("/", () => new {
     environment = app.Environment.EnvironmentName
 });
 
-app.MapGet("/api/health", () => new { 
-    status = "healthy", 
-    timestamp = DateTime.UtcNow,
-    service = "Command Center API",
-    database = "PostgreSQL Connected"
-});
+// ❌ REMOVED: Duplicate /api/health endpoint
+// HealthController already handles /api/health
+// app.MapGet("/api/health", () => new { ... });
 
 // Create database on startup
 using (var scope = app.Services.CreateScope())
