@@ -23,8 +23,11 @@ if (string.IsNullOrEmpty(connectionString))
 }
 if (string.IsNullOrEmpty(connectionString))
 {
-    connectionString = "Host=postgres.railway.internal;Database=railway;Username=postgres;Password=PEYnUMlHNxqChrkxTaOPaSuPrDdanDFT";
+    Console.WriteLine("❌ ERROR: Database connection string is missing!");
+    throw new Exception("Database connection string is required");
 }
+
+Console.WriteLine($"✅ Database connection string loaded from configuration.");
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString));
@@ -49,31 +52,37 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization();
 builder.Services.AddScoped<AuthService>();
 
-// CORS - Allow all for debugging
+// CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy =>
+    options.AddPolicy("AllowSpecificOrigins", policy =>
     {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
+        policy.WithOrigins(
+            "https://renewed-growth-production-9650.up.railway.app",
+            "http://localhost:3000"
+        )
+        .AllowAnyMethod()
+        .AllowAnyHeader()
+        .AllowCredentials();
     });
 });
 
 var app = builder.Build();
 
-// Always enable Swagger for debugging
-app.UseSwagger();
-app.UseSwaggerUI();
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 app.UseHttpsRedirection();
-app.UseCors("AllowAll");
+app.UseCors("AllowSpecificOrigins");
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 
-// Root endpoint
+// Root endpoint (keep this)
 app.MapGet("/", () => new { 
     message = "Command Center API is running!",
     timestamp = DateTime.UtcNow,
@@ -82,15 +91,14 @@ app.MapGet("/", () => new {
     environment = app.Environment.EnvironmentName
 });
 
-// Health endpoint
-app.MapGet("/api/health", () => new { 
-    status = "healthy", 
-    timestamp = DateTime.UtcNow,
-    service = "Command Center API",
-    database = "PostgreSQL Connected"
-});
+// ❌ DELETE THIS ENTIRE BLOCK:
+// app.MapGet("/api/health", () => new { 
+//     status = "healthy", 
+//     timestamp = DateTime.UtcNow,
+//     service = "Command Center API",
+//     database = "PostgreSQL Connected"
+// });
 
-// Create database on startup
 using (var scope = app.Services.CreateScope())
 {
     try
