@@ -1,9 +1,7 @@
-// app/page.tsx (Updated with Dark Mode support)
+// app/page.tsx
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
+import { useState } from 'react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { 
   Brain, 
@@ -17,9 +15,9 @@ import {
   Users,
   Clock,
   Cloud,
-  Lock,
   Moon,
-  Sun
+  Sun,
+  LayoutDashboard
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -49,17 +47,12 @@ const MailIcon = () => (
 );
 
 export default function LandingPage() {
-  const { isAuthenticated } = useAuth();
   const { theme, toggleTheme } = useTheme();
-  const router = useRouter();
   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
+  useState(() => {
     setMounted(true);
-    if (isAuthenticated) {
-      router.push('/dashboard');
-    }
-  }, [isAuthenticated, router]);
+  }, []);
 
   // Prevent hydration mismatch
   if (!mounted) {
@@ -95,17 +88,13 @@ export default function LandingPage() {
               >
                 {theme === 'dark' ? <Sun size={20} className="text-yellow-500" /> : <Moon size={20} />}
               </button>
+              {/* Dashboard Link */}
               <Link
-                href="/login"
-                className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition"
+                href="/dashboard"
+                className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg hover:from-blue-600 hover:to-purple-600 transition flex items-center gap-2 shadow-lg hover:shadow-xl"
               >
-                Log in
-              </Link>
-              <Link
-                href="/register"
-                className="px-5 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg hover:from-blue-600 hover:to-purple-600 transition shadow-lg hover:shadow-xl"
-              >
-                Get Started
+                <LayoutDashboard size={18} />
+                Dashboard
               </Link>
             </div>
           </div>
@@ -129,11 +118,11 @@ export default function LandingPage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              href="/register"
+              href="/dashboard"
               className="px-8 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg hover:from-blue-600 hover:to-purple-600 transition shadow-lg hover:shadow-xl flex items-center gap-2 justify-center"
             >
-              Start Free Trial
-              <ArrowRight size={18} />
+              <LayoutDashboard size={20} />
+              Go to Dashboard
             </Link>
             <a
               href="#features"

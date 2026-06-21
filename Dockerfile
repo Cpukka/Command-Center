@@ -1,4 +1,3 @@
-# Build stage
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
@@ -9,7 +8,7 @@ COPY backend/CommandCenter.Api/ CommandCenter.Api/
 RUN dotnet publish CommandCenter.Api/CommandCenter.Api.csproj -c Release -o /app/out
 
 # Runtime stage
-FROM mcr.microsoft.com/dotnet/aspnet:10.0
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 
 COPY --from=build /app/out .
