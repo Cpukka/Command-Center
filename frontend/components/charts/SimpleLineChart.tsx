@@ -1,4 +1,5 @@
-﻿'use client';
+﻿// frontend/components/charts/SimpleLineChart.tsx
+'use client';
 
 import {
   LineChart,
@@ -11,6 +12,7 @@ import {
   ResponsiveContainer
 } from 'recharts';
 
+// More flexible DataPoint type
 interface DataPoint {
   name: string;
   [key: string]: string | number | undefined;

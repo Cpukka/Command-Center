@@ -1,8 +1,8 @@
 ﻿'use client';
 
 import {
-  BarChart,
-  Bar,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -11,27 +11,39 @@ import {
   ResponsiveContainer
 } from 'recharts';
 
-interface SimpleBarChartProps {
-  data: any[];
+// Use a more flexible type that matches your data
+type DataPoint = {
+  name: string;
+  [key: string]: string | number | undefined;
+};
+
+interface SimpleLineChartProps {
+  data: DataPoint[];
   title: string;
-  bars: { key: string; color: string; name: string }[];
+  lines: { key: string; color: string; name: string }[];
 }
 
-export default function SimpleBarChart({ data, title, bars }: SimpleBarChartProps) {
+export default function SimpleLineChart({ data, title, lines }: SimpleLineChartProps) {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
       <h3 className="text-lg font-semibold mb-4">{title}</h3>
       <ResponsiveContainer width="100%" height={300}>
-        <BarChart data={data}>
+        <LineChart data={data}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="name" />
           <YAxis />
           <Tooltip />
           <Legend />
-          {bars.map(bar => (
-            <Bar key={bar.key} dataKey={bar.key} fill={bar.color} name={bar.name} />
+          {lines.map(line => (
+            <Line
+              key={line.key}
+              type="monotone"
+              dataKey={line.key}
+              stroke={line.color}
+              name={line.name}
+            />
           ))}
-        </BarChart>
+        </LineChart>
       </ResponsiveContainer>
     </div>
   );

@@ -180,7 +180,7 @@ export default function EnhancedDashboardPage() {
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <SimpleLineChart
-          data={trendData}
+          data={trendData as any}
           title="Dataset & Prediction Growth"
           lines={[
             { key: 'datasets', color: '#3B82F6', name: 'Datasets' },
