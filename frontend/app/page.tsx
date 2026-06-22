@@ -1,7 +1,7 @@
 // app/page.tsx
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { 
   Brain, 
@@ -50,7 +50,8 @@ export default function LandingPage() {
   const { theme, toggleTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
-  useState(() => {
+  // ✅ FIXED: Use useEffect instead of useState
+  useEffect(() => {
     setMounted(true);
   }, []);
 
@@ -80,7 +81,6 @@ export default function LandingPage() {
               <a href="#contact" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition">Contact</a>
             </div>
             <div className="flex items-center gap-3">
-              {/* Dark Mode Toggle */}
               <button
                 onClick={toggleTheme}
                 className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
@@ -88,7 +88,6 @@ export default function LandingPage() {
               >
                 {theme === 'dark' ? <Sun size={20} className="text-yellow-500" /> : <Moon size={20} />}
               </button>
-              {/* Dashboard Link */}
               <Link
                 href="/dashboard"
                 className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg hover:from-blue-600 hover:to-purple-600 transition flex items-center gap-2 shadow-lg hover:shadow-xl"

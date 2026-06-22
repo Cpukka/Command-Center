@@ -14,7 +14,6 @@ interface TrendDataPoint {
   name: string;
   datasets: number;
   predictions: number;
-  [key: string]: string | number | undefined;
 }
 
 interface ModelPerformancePoint {
@@ -22,7 +21,6 @@ interface ModelPerformancePoint {
   accuracy: number;
   precision: number;
   recall: number;
-  [key: string]: string | number | undefined;
 }
 
 interface Activity {
@@ -44,6 +42,10 @@ export default function EnhancedDashboardPage() {
   const [modelPerformance, setModelPerformance] = useState<ModelPerformancePoint[]>([]);
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // Get API URL from environment
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+  const aiUrl = process.env.NEXT_PUBLIC_AI_URL || 'http://localhost:8000';
 
   useEffect(() => {
     loadDashboardData();
@@ -54,12 +56,12 @@ export default function EnhancedDashboardPage() {
 
   const loadDashboardData = async () => {
     try {
-      // Fetch datasets
-      const datasetsRes = await fetch('http://localhost:5000/api/datasets');
+      // Fetch datasets using environment variable
+      const datasetsRes = await fetch(`${apiUrl}/api/datasets`);
       const datasets = await datasetsRes.json();
       
-      // Fetch models from AI service
-      const modelsRes = await fetch('http://localhost:8000/api/models');
+      // Fetch models from AI service using environment variable
+      const modelsRes = await fetch(`${aiUrl}/api/models`);
       const models = await modelsRes.json();
       
       // Update metrics
