@@ -11,13 +11,9 @@ import {
   ResponsiveContainer
 } from 'recharts';
 
-type DataPoint = {
-  name: string;
-  [key: string]: string | number | undefined;
-};
-
+// Use 'any' for maximum flexibility
 interface SimpleBarChartProps {
-  data: DataPoint[];
+  data: any[];
   title: string;
   bars: { key: string; color: string; name: string }[];
 }

@@ -177,26 +177,23 @@ export default function EnhancedDashboardPage() {
         />
       </div>
 
-      {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <SimpleLineChart
-          data={trendData as any}
-          title="Dataset & Prediction Growth"
-          lines={[
-            { key: 'datasets', color: '#3B82F6', name: 'Datasets' },
-            { key: 'predictions', color: '#10B981', name: 'Predictions' }
-          ]}
-        />
-        <SimpleBarChart
-          data={modelPerformance}
-          title="Model Performance Metrics"
-          bars={[
-            { key: 'accuracy', color: '#3B82F6', name: 'Accuracy' },
-            { key: 'precision', color: '#10B981', name: 'Precision' },
-            { key: 'recall', color: '#8B5CF6', name: 'Recall' }
-          ]}
-        />
-      </div>
+<SimpleLineChart
+  data={trendData as any}
+  title="Dataset & Prediction Growth"
+  lines={[
+    { key: 'datasets', color: '#3B82F6', name: 'Datasets' },
+    { key: 'predictions', color: '#10B981', name: 'Predictions' }
+  ]}
+/>
+<SimpleBarChart
+  data={modelPerformance as any}
+  title="Model Performance Metrics"
+  bars={[
+    { key: 'accuracy', color: '#3B82F6', name: 'Accuracy' },
+    { key: 'precision', color: '#10B981', name: 'Precision' },
+    { key: 'recall', color: '#8B5CF6', name: 'Recall' }
+  ]}
+/>
 
       {/* Bottom Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
