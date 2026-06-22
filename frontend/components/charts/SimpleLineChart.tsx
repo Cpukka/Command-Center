@@ -1,5 +1,4 @@
-﻿// frontend/components/charts/SimpleLineChart.tsx
-'use client';
+﻿'use client';
 
 import {
   LineChart,
@@ -12,11 +11,11 @@ import {
   ResponsiveContainer
 } from 'recharts';
 
-// More flexible DataPoint type
-interface DataPoint {
+// Use a more flexible type that matches your data
+type DataPoint = {
   name: string;
   [key: string]: string | number | undefined;
-}
+};
 
 interface SimpleLineChartProps {
   data: DataPoint[];
