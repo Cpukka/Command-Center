@@ -58,7 +58,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowSpecificOrigins", policy =>
     {
         policy.WithOrigins(
-            https://wholesome-laughter-production-350e.up.railway.app",
+            "https://wholesome-laughter-production-350e.up.railway.app",
             "http://localhost:3000"
         )
         .AllowAnyMethod()
